@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Электронная зачётка</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="login-container">
+        <h2 style="font-weight: 500; font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">СИСТЕМА ЭЛЕКТРОННЫХ ЗАЧЕТНЫХ КНИЖЕК</h2>
+        <br>
+        <h2>Вход в учетную запись</h2>
+        <input type="text" id="email" placeholder="Электронная почта">
+        <input type="password" id="password" placeholder="Пароль">
+        <button onclick="login()">Войти</button>
+    </div>
+    <div id="group-selection-container" class="hidden">
+        <h2>Выбор группы</h2>
+        <select id="group-select">
+            <option value="ПКТб-20-1">ПКТб-20-1</option>
+            <option value="РИСб-20-1">РИСб-20-1</option>
+        </select>
+        <button onclick="selectGroup()">Выбрать</button>
+    </div>
+    <div id="student-selection-container" class="hidden">
+        <h2>Выбор учащегося</h2>
+        <select id="student-select">
+            <!-- Опции будут добавлены динамически -->
+        </select>
+        <button onclick="selectStudent()">Выбрать</button>
+    </div>
+    <div id="gradebook-container" class="hidden">
+        <h2>Электронная зачётная книжка</h2>
+        <table id="gradebook">
+            <thead>
+                <tr>
+                    <th>Наименование учебной дисциплины</th>
+                    <th>Общее количество часов</th>
+                    <th>Оценка</th>
+                    <th>Дата</th>
+                    <th>Ф.И.О преподавателя</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Строки будут добавлены динамически -->
+            </tbody>
+        </table>
+        <div id="admin-controls" class="hidden">
+            <input type="text" id="new-subject" placeholder="Новый предмет">
+            <input type="number" id="new-hours" placeholder="Общее количество часов" min="0" max="100">
+            <input type="number" id="new-score" placeholder="Оценка" min="0" max="100">
+            <input type="date" id="new-date" placeholder="Дата">
+            <input type="text" id="new-teacher" placeholder="Ф.И.О преподавателя">
+            <button onclick="addSubject()">Добавить предмет</button>
+        </div>
+        <br>
+        <button id="logout" onclick="logout()">Выйти</button>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

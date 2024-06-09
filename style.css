@@ -1,0 +1,58 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url("img/theme.png");
+    background-size: cover;
+}
+
+.hidden {
+    display: none;
+}
+
+#login-container, #gradebook-container {
+    background-color: white;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+#gradebook {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+#gradebook th, #gradebook td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+
+#gradebook th {
+    background-color: #f4f4f4;
+}
+
+#admin-controls {
+    margin-top: 20px;
+}
+
+#admin-controls input {
+    margin-right: 10px;
+}
+
+table {
+    width: 80%;
+    margin: 0 auto;
+    border-collapse: collapse;
+}
+
+#gradebook td {
+    text-align: center;
+}
+
+#gradebook td:first-child {
+    text-align: left;
+}

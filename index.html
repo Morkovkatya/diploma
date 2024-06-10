@@ -7,13 +7,13 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class ="login-container" id="login-container">
+    <div class="login-container" id="login-container">
         <h2 style="font-weight: 500; font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif">СИСТЕМА ЭЛЕКТРОННЫХ ЗАЧЕТНЫХ КНИЖЕК</h2>
         <br>
         <h2>Вход в учетную запись</h2>
         <input type="text" id="email" placeholder="Электронная почта">
         <input type="password" id="password" placeholder="Пароль">
-        <button id="loginBtn"onclick="login()">Войти</button>
+        <button id="loginBtn" onclick="login()">Войти</button>
     </div>
     <div id="group-select-container" class="hidden">
         <h2>Выберите группу</h2>
@@ -24,7 +24,8 @@
         <select id="student-select">
             <!-- Опции будут добавлены динамически -->
         </select>
-        <button id="showBtn"onclick="showGradebook()">Открыть зачётную книжку</button>
+        <button id="showBtn" onclick="showGradebook()">Открыть зачётную книжку</button>
+        <button id="logout" onclick="logout()">Выйти</button>
     </div>
     <div id="gradebook-container" class="hidden">
         <h2>Электронная зачётная книжка</h2>
@@ -42,15 +43,15 @@
                 <!-- Строки будут добавлены динамически -->
             </tbody>
         </table>
-        <div id="admin-controls" class="hidden">
+        <div id="teacher-controls" class="hidden">
             <input type="text" id="new-subject" placeholder="Новый предмет">
             <input type="number" id="new-hours" placeholder="Общее количество часов" min="0" max="100">
             <input type="number" id="new-score" placeholder="Оценка" min="0" max="100">
             <input type="date" id="new-date" placeholder="Дата">
             <input type="text" id="new-teacher" placeholder="Ф.И.О преподавателя">
-            <button id="addSubjectBtn"onclick="addSubject()">Добавить</button>
+            <button id="addSubjectBtn" onclick="addSubject()">Добавить</button>
         </div>
-        <button id="logout" onclick="logout()">Выйти</button>
+        <button id="back" onclick="back()">Назад</button>
     </div>
     <script src="script.js"></script>
 </body>

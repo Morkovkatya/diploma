@@ -102,9 +102,13 @@ button:hover {
 
 #addSubjectBtn {
     margin-top:0;
+    margin-left:10px;
     width:100px;
 }
 
 #loginBtn {
     margin-left:14px;
+}
+#teacher-controls {
+    margin-top:20px;
 }

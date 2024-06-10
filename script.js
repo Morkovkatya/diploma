@@ -3,24 +3,18 @@ const admins = {
 };
 
 const users = {
-    "user1@example.com": { password: "user123", name: "Быкова Ирина Геннадьевна", group: "ПКТб-20-1" },
-    "user2@example.com": { password: "user456", name: "Волков Владислав Владимирович", group: "РИСб-20-1" },
-    "user3@example.com": { password: "user789", name: "Солдаткин Никита Игоревич", group: "РИСб-20-1" }
-};
-
-const teachers = {
-    "teacher1@example.com": "teacher123",
-    "teacher2@example.com": "teacher456"
+    "user1@example.com": { password: "user123", group: "ПКТб-20-1", name: "Волков Владислав Владимирович" },
+    "user2@example.com": { password: "user456", group: "ПКТб-20-1", name: "Быкова Ирина Геннадьевна" },
+    "user3@example.com": { password: "user789", group: "МКМб-20-1", name: "Мамедов Вадим Николаевич" }
 };
 
 let token = localStorage.getItem('token');
 let role = localStorage.getItem('role');
-let selectedStudent = localStorage.getItem('selectedStudent');
-let currentUserEmail = localStorage.getItem('currentUserEmail');
+let currentUser = localStorage.getItem('currentUser');
 
 if (token && role) {
-    if (role === 'teacher' && !selectedStudent) {
-        showGroupSelection();
+    if (role === 'admin') {
+        showGroupSelect();
     } else {
         showGradebook();
     }
@@ -37,71 +31,70 @@ function login() {
         token = generateJWT(email);
         localStorage.setItem('token', token);
         localStorage.setItem('role', role);
-        localStorage.setItem('currentUserEmail', email);
-        showGradebook();
+        document.getElementById('login-container').classList.add('hidden');
+        showGroupSelect();
     } else if (users[email] && users[email].password === password) {
         role = "user";
         token = generateJWT(email);
         localStorage.setItem('token', token);
         localStorage.setItem('role', role);
-        localStorage.setItem('currentUserEmail', email);
+        localStorage.setItem('currentUser', email);
+        document.getElementById('login-container').classList.add('hidden');
         showGradebook();
-    } else if (teachers[email] && teachers[email] === password) {
-        role = "teacher";
-        token = generateJWT(email);
-        localStorage.setItem('token', token);
-        localStorage.setItem('role', role);
-        localStorage.setItem('currentUserEmail', email);
-        showGroupSelection();
     } else {
         alert('Неверные учетные данные');
     }
 }
 
 function generateJWT(email) {
+    // Для простоты используем base64 кодирование в качестве фиктивного JWT
     return btoa(JSON.stringify({ email }));
 }
 
-function showGroupSelection() {
+function showGroupSelect() {
     document.getElementById('login-container').classList.add('hidden');
-    document.getElementById('group-selection-container').classList.remove('hidden');
+    document.getElementById('group-select-container').classList.remove('hidden');
+
+    const groups = new Set(Object.values(users).map(user => user.group));
+    const groupSelect = document.getElementById('group-select');
+
+    groups.forEach(group => {
+        const option = document.createElement('option');
+        option.value = group;
+        option.textContent = group;
+        groupSelect.appendChild(option);
+    });
+
+    loadStudents(); // Load students for the first group by default
 }
 
-function selectGroup() {
-    const group = document.getElementById('group-select').value;
+function loadStudents() {
+    const selectedGroup = document.getElementById('group-select').value;
     const studentSelect = document.getElementById('student-select');
-    studentSelect.innerHTML = ''; // Очистить существующие опции
+    studentSelect.innerHTML = '';
 
-    for (const email in users) {
-        if (users[email].group === group) {
+    for (const [email, user] of Object.entries(users)) {
+        if (user.group === selectedGroup) {
             const option = document.createElement('option');
             option.value = email;
-            option.text = users[email].name;
-            studentSelect.add(option);
+            option.textContent = user.name;
+            studentSelect.appendChild(option);
         }
     }
-
-    document.getElementById('group-selection-container').classList.add('hidden');
-    document.getElementById('student-selection-container').classList.remove('hidden');
-}
-
-function selectStudent() {
-    const studentEmail = document.getElementById('student-select').value;
-    localStorage.setItem('selectedStudent', studentEmail);
-    selectedStudent = studentEmail;
-    showGradebook();
 }
 
 function showGradebook() {
-    document.getElementById('login-container').classList.add('hidden');
-    document.getElementById('group-selection-container').classList.add('hidden');
-    document.getElementById('student-selection-container').classList.add('hidden');
+    document.getElementById('group-select-container').classList.add('hidden');
     document.getElementById('gradebook-container').classList.remove('hidden');
-    
-    if (role === 'admin' || role === 'teacher') {
+
+    if (role === 'admin') {
+        const selectedStudent = document.getElementById('student-select').value;
+        currentUser = selectedStudent;
         document.getElementById('admin-controls').classList.remove('hidden');
+    } else {
+        currentUser = localStorage.getItem('currentUser');
     }
-    
+
     loadGradebook();
 }
 
@@ -114,16 +107,10 @@ function loadGradebook() {
     const tbody = document.getElementById('gradebook').getElementsByTagName('tbody')[0];
     tbody.innerHTML = ''; // Очистить существующие строки
 
-    let subjects;
-    if (role === 'user') {
-        subjects = JSON.parse(localStorage.getItem(currentUserEmail)) || [];
-    } else if (role === 'teacher') {
-        subjects = JSON.parse(localStorage.getItem(selectedStudent)) || [];
-    } else if (role === 'admin') {
-        subjects = JSON.parse(localStorage.getItem('subjects')) || [];
-    }
+    let subjects = JSON.parse(localStorage.getItem(`subjects_${currentUser}`));
 
-    if (!subjects.length) {
+    if (!subjects || !Array.isArray(subjects) || !subjects.length || !subjects[0].hasOwnProperty('hours')) {
+        // Если данные отсутствуют или имеют старый формат, инициализировать их новыми данными
         subjects = [
             { subject: 'Математический анализ', hours: 120, score: 91, date: '2024-06-12', teacher: 'Иванов И.И.' },
             { subject: 'Английский язык', hours: 80, score: 88, date: '2024-06-12', teacher: 'Петрова А.А.' },
@@ -149,12 +136,6 @@ function loadGradebook() {
         cell4.innerHTML = formatDate(subj.date);
         cell5.innerHTML = subj.teacher;
 
-        // Center align for specific columns except the first column
-        cell2.style.textAlign = 'center';
-        cell3.style.textAlign = 'center';
-        cell4.style.textAlign = 'center';
-        cell5.style.textAlign = 'center';
-        
         if (role === 'admin') {
             cell2.contentEditable = true;
             cell3.contentEditable = true;
@@ -194,7 +175,7 @@ function addSubject() {
     const newTeacher = document.getElementById('new-teacher').value;
 
     if (newSubject && newHours && newScore && newDate && newTeacher) {
-        const subjects = role === 'teacher' ? JSON.parse(localStorage.getItem(selectedStudent)) || [] : JSON.parse(localStorage.getItem(currentUserEmail)) || [];
+        const subjects = JSON.parse(localStorage.getItem(`subjects_${currentUser}`)) || [];
         subjects.push({ subject: newSubject, hours: newHours, score: newScore, date: newDate, teacher: newTeacher });
         saveData(subjects);
         loadGradebook();
@@ -202,40 +183,19 @@ function addSubject() {
 }
 
 function saveData(data) {
-    if (role === 'teacher') {
-        localStorage.setItem(selectedStudent, JSON.stringify(data));
-    } else if (role === 'admin') {
-        localStorage.setItem('subjects', JSON.stringify(data));
-    } else {
-        localStorage.setItem(currentUserEmail,
-            JSON.stringify(data));
-        }
-    }
-    
-    function logout() {
-        token = null;
-        role = null;
-        selectedStudent = null;
-        currentUserEmail = null;
-        localStorage.removeItem('token');
-        localStorage.removeItem('role');
-        localStorage.removeItem('selectedStudent');
-        localStorage.removeItem('currentUserEmail');
-        document.getElementById('login-container').classList.remove('hidden');
-        document.getElementById('gradebook-container').classList.add('hidden');
-        document.getElementById('admin-controls').classList.add('hidden');
-    }
-    
-    document.addEventListener('DOMContentLoaded', () => {
-        if (token && role) {
-            if (role === 'teacher' && !selectedStudent) {
-                showGroupSelection();
-            } else {
-                showGradebook();
-            }
-        } else {
-            document.getElementById('login-container').classList.remove('hidden');
-        }
-    });
-    
+    localStorage.setItem(`subjects_${currentUser}`, JSON.stringify(data));
+}
+
+function logout() {
+    token = null;
+    role = null;
+    currentUser = null;
+    localStorage.removeItem('token');
+    localStorage.removeItem('role');
+    localStorage.removeItem('currentUser');
+    document.getElementById('login-container').classList.remove('hidden');
+    document.getElementById('gradebook-container').classList.add('hidden');
+    document.getElementById('admin-controls').classList.add('hidden');
+    document.getElementById('group-select-container').classList.add('hidden');
+}
 
